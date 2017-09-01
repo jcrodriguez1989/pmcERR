@@ -1,9 +1,47 @@
+#'Paper methods
+#'
+#'Methods to work with a Paper.
+#'\code{getFullPaper} returns the full paper as a string.
+#'\code{getSentences} returns the full paper in a vector separating each
+#'sentence.
+#'
+#'@param paper a Paper object.
+#'
+#'@return string, or character vector.
+#'
+#'@docType methods
+#'@name methods-Paper
+#'@rdname methods-Paper
+#'
+#'@examples
+#'## Create a PaperDownloader to query for two entities relations
+#'entities <- c('terminal differentiation', 'basal-like');
+#'pprDldr <- PaperDownloader(entities=entities, papersDir='/tmp/pmcERR/');
+#'
+#'## Get the first paper
+#'papers <- getPapers(pprDldr, n=1);
+#'paper <- papers[[1]];
+#'
+#'getSentences(paper);
+#'
+setGeneric(name='methods-Paper', def=function(paper) {
+    standardGeneric('methods-Paper')
+})
+
+#'@name getFullPaper
+#'@inheritParams methods-Paper
+#'@rdname methods-Paper
+#'@aliases getFullPaper,Paper-method
 #'@exportMethod getFullPaper
 #'
 setGeneric(name='getFullPaper', def=function(paper) {
     standardGeneric('getFullPaper')
 })
 
+#'@inheritParams methods-Paper
+#'@rdname methods-Paper
+#'@aliases getFullPaper,Paper-method
+#'
 #'@include AllClasses.R
 #'
 setMethod(
@@ -17,12 +55,20 @@ setMethod(
     }
 )
 
+#'@name getSentences
+#'@inheritParams methods-Paper
+#'@rdname methods-Paper
+#'@aliases getSentences,Paper-method
 #'@exportMethod getSentences
 #'
 setGeneric(name='getSentences', def=function(paper) {
     standardGeneric('getSentences')
 })
 
+#'@inheritParams methods-Paper
+#'@rdname methods-Paper
+#'@aliases getSentences,Paper-method
+#'
 #'@include AllClasses.R
 #'@importFrom tokenizers tokenize_sentences
 #'

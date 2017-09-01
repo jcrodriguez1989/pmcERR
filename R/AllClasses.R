@@ -1,27 +1,24 @@
 # All class definitions in R/AllClasses.R
-
-#'@export Paper
+#'pmcERR S4 classes implementation in R
 #'
-Paper <- setClass(
-    Class='Paper',
-    slots=c(
-        id='character',
-        database='character',
-        title='character',
-        abstract='character',
-        body='character',
-        date='Date'
-    ),
-    prototype=list(
-        date=as.Date('1918-08-18')
-    ),
-    validity=function(object) {
-        has_id <- object@id != '' && is.character(object@id);
-        all_ok <- has_id;
-        return(all_ok);
-    }
-)
-
+#'PaperDownloader class is used to download papers given some entities.
+#'
+#'@slot entities character vector of entities.
+#'@slot papers list of papers, will be filled when downloaded.
+#'@slot papersDir character indicating the path to locally store papers (can be
+#'character() in order to dont store them).
+#'
+#'
+#'@docType methods
+#'@name AllClasses
+#'@rdname AllClasses
+#'@seealso \code{\link{methods-PaperDownloader}}
+#'
+#'@examples
+#'## Create a PaperDownloader to query for two entities relations
+#'entities <- c('terminal differentiation', 'basal-like');
+#'pprDldr <- PaperDownloader(entities=entities, papersDir='/tmp/pmcERR/');
+#'
 #'@export PaperDownloader
 #'
 PaperDownloader <- setClass(
@@ -42,8 +39,26 @@ PaperDownloader <- setClass(
     }
 )
 
-#'@export Relations
-#'
+Paper <- setClass(
+    Class='Paper',
+    slots=c(
+        id='character',
+        database='character',
+        title='character',
+        abstract='character',
+        body='character',
+        date='Date'
+    ),
+    prototype=list(
+        date=as.Date('1918-08-18')
+    ),
+    validity=function(object) {
+        has_id <- object@id != '' && is.character(object@id);
+        all_ok <- has_id;
+        return(all_ok);
+    }
+)
+
 Relations <- setClass(
     Class='Relations',
     slots=c(

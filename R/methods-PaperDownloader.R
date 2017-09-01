@@ -1,22 +1,58 @@
-# install.packages('pmcQuery_0.1.0.tar.gz', type='source', repos=NULL);
-# rm(list=ls());
-# library(pmcQuery); library(tokenizers);
-# entities <- c('terminal differentiation', 'basal-like');
-# paperDownloader <- PaperDownloader(entities=entities, papersDir='/media/jcrodriguez/Data11/mytmp/noExiste/');
-# paperDownloader <- PaperDownloader(entities=entities, papersDir='/home/jcrodriguez/relatedpapers/papers');
-# paperDownloader <- getPapersIds(paperDownloader);
-# paperDownloader <- downloadPapers(paperDownloader);
-# papers <- getPapers(paperDownloader); length(papers);
-# relations <- getRelations(papers, entities); # relations
-# length(relations@relatedPapers);
-# lapply(relations@relatedPapers, function(x) x@relatedSents);
+#'PaperDownloader methods
+#'
+#'Methods to work with a PaperDownloader.
+#'\code{getPapersIds} gets the number of papers possible to download that
+#'relate the entities. Updates the PaperDownloader.
+#'\code{downloadPapers} downloads the papers (n is the max desired to download).
+#'\code{getPapers} gets the list of downloaded Paper objects (n is the max
+#'desired to download).
+#'
+#'@param paperDownloader a PaperDownloader object.
+#'@param n (optional) numeric parameter.
+#'@param ... not in use.
+#'
+#'@return PaperDownloader object with updated values. Or a list of Paper
+#'objects.
+#'
+#'@docType methods
+#'@name methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@seealso \code{\link{AllClasses}}
+#'
+#'@examples
+#'## Create a PaperDownloader to query for two entities relations
+#'entities <- c('terminal differentiation', 'basal-like');
+#'pprDldr <- PaperDownloader(entities=entities, papersDir='/tmp/pmcERR/');
+#'
+#'## Get the number of papers possible to download, updating the pprDldr
+#'pprDldr <- getPapersIds(pprDldr);
+#'
+#'## Download the first 3 papers
+#'pprDldr <- downloadPapers(pprDldr, n=3);
+#'
+#'## Get the first 3 papers
+#'papers <- getPapers(pprDldr, n=3);
+#'length(papers);
+#'
+setGeneric(name='methods-PaperDownloader', def=function(paperDownloader) {
+    standardGeneric('methods-PaperDownloader')
+})
 
+#'@name getPapersIds
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases getPapersIds,PaperDownloader-method
 #'@exportMethod getPapersIds
 #'
 setGeneric(name='getPapersIds', def=function(paperDownloader) {
     standardGeneric('getPapersIds')
 })
 
+
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases getPapersIds,PaperDownloader-method
+#'
 #'@importFrom XML xmlToList xmlTreeParse
 #'@include AllClasses.R
 #'
@@ -63,12 +99,20 @@ setMethod(
 # getQuery <- .getQuery; # todo: delete
 
 
+#'@name downloadPapers
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases downloadPapers,PaperDownloader-method
 #'@exportMethod downloadPapers
 #'
 setGeneric(name='downloadPapers', def=function(paperDownloader, ...) {
     standardGeneric('downloadPapers')
 })
 
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases downloadPapers,PaperDownloader-method,numeric
+#'
 #'@include AllClasses.R
 #'
 setMethod(
@@ -145,12 +189,20 @@ setMethod(
 }
 downloadPaper <- .downloadPaper; # todo: delete
 
+#'@name getPapers
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases getPapers,PaperDownloader-method
 #'@exportMethod getPapers
 #'
 setGeneric(name='getPapers', def=function(paperDownloader, ...) {
     standardGeneric('getPapers')
 })
 
+#'@inheritParams methods-PaperDownloader
+#'@rdname methods-PaperDownloader
+#'@aliases getPapers,PaperDownloader-method,numeric
+#'
 #'@include AllClasses.R
 #'
 setMethod(

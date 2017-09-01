@@ -6,7 +6,7 @@ Date: 2017-09-01
 Author: Juan C. Rodriguez, Franco M. Luque and Elmer A. Fernandez
 Maintainer: Juan C. Rodriguez <jcrodriguez@bdmg.com.ar>
 Description: PubMed Central Entity Relation Recognition.
-    The pampER package allows downloading the scientific articles of PubMed
+    The pmcEER package allows downloading the scientific articles of PubMed
     Central given a list of entities. Then given the downloaded articles looks
     for relations between these entities within them. In this way, giving a
     list of articles that validate the relationship between entities.
