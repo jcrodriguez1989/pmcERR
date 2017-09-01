@@ -1,0 +1,28 @@
+Package: pmcERR
+Type: Package
+Title: PubMed Central Entity Relation Recognition
+Version: 0.1.0
+Date: 2017-09-01
+Author: Juan C. Rodriguez, Franco M. Luque and Elmer A. Fernandez
+Maintainer: Juan C. Rodriguez <jcrodriguez@bdmg.com.ar>
+Description: PubMed Central Entity Relation Recognition.
+    The pampER package allows downloading the scientific articles of PubMed
+    Central given a list of entities. Then given the downloaded articles looks
+    for relations between these entities within them. In this way, giving a
+    list of articles that validate the relationship between entities.
+URL: http://www.bdmg.com.ar/
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+Depends:
+    methods,
+    tokenizers,
+    XML
+Collate:
+    'AllClasses.R'
+    'AllGenerics.R'
+    'methods-Paper.R'
+    'methods-PaperDownloader.R'
+    'methods-Relations.R'
+    'pmcERRPackage.R'
+RoxygenNote: 5.0.1
