@@ -70,7 +70,6 @@ setGeneric(name='getSentences', def=function(paper) {
 #'@aliases getSentences,Paper-method
 #'
 #'@include AllClasses.R
-#'@importFrom tokenizers tokenize_sentences
 #'
 setMethod(
     f='getSentences',
@@ -78,11 +77,29 @@ setMethod(
     definition=function(paper) {
         stopifnot(validObject(paper));
 
-        sentences <- tokenize_sentences(.replaceAbbreviations(
+        return(paper@sentences);
+    }
+)
+
+setGeneric(name='splitSentences', def=function(paper) {
+    standardGeneric('splitSentences')
+})
+
+#'@include AllClasses.R
+#'@importFrom tokenizers tokenize_sentences
+#'
+setMethod(
+    f='splitSentences',
+    signature=c('Paper'),
+    definition=function(paper) {
+        stopifnot(validObject(paper));
+
+        sentences <- tokenize_sentences(pmcERR:::.replaceAbbreviations(
             paste(paper@title, paper@abstract, paper@body, sep='. ')), simplify=TRUE);
-        # sentences <- tokenize_sentences(.replaceAbbreviations(paper@title), simplify=TRUE);
-        # sentences <- c(sentences, tokenize_sentences(.replaceAbbreviations(paper@abstract), simplify=TRUE));
-        # sentences <- c(sentences, tokenize_sentences(.replaceAbbreviations(paper@body), simplify=TRUE));
+
+        if (is.list(sentences)) {
+            sentences <- as.character(sentences);
+        }
         return(sentences);
     }
 )

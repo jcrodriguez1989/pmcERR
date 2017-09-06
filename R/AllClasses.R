@@ -25,7 +25,7 @@ PaperDownloader <- setClass(
     Class='PaperDownloader',
     slots=c(
         entities='character',
-        papers='list',
+        paperIds='character',
         papersDir='character'
     ),
     prototype=list(
@@ -39,15 +39,15 @@ PaperDownloader <- setClass(
     }
 )
 
-Paper <- setClass(
+setClass(
     Class='Paper',
     slots=c(
         id='character',
-        database='character',
         title='character',
         abstract='character',
         body='character',
-        date='Date'
+        date='Date',
+        sentences='character'
     ),
     prototype=list(
         date=as.Date('1918-08-18')
@@ -55,6 +55,26 @@ Paper <- setClass(
     validity=function(object) {
         has_id <- object@id != '' && is.character(object@id);
         all_ok <- has_id;
+        return(all_ok);
+    }
+)
+Paper <- function(...) {
+    paper <- new('Paper', ...);
+    stopifnot(validObject(paper));
+    paper@sentences <- splitSentences(paper);
+    return(paper);
+}
+
+Relation <- setClass(
+    Class='Relation',
+    slots=c(
+        paper='Paper',
+        relatedSents='character'
+    ),
+    prototype=list(
+    ),
+    validity=function(object) {
+        all_ok <- TRUE;
         return(all_ok);
     }
 )
@@ -76,11 +96,10 @@ Relations <- setClass(
     }
 )
 
-Relation <- setClass(
-    Class='Relation',
+PapersManager <- setClass(
+    Class='PapersManager',
     slots=c(
-        paper='Paper',
-        relatedSents='character'
+        papers='list' # list of Paper objects
     ),
     prototype=list(
     ),

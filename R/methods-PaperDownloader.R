@@ -79,9 +79,7 @@ setMethod(
         papersIds <- sort(papersIds, decreasing=TRUE);
         message(length(papersIds), ' papers to download')
 
-        papers <- as.list(rep(NA, length(papersIds)));
-        names(papers) <- papersIds;
-        paperDownloader@papers <- papers;
+        paperDownloader@paperIds <- papersIds;
 
         return(invisible(paperDownloader));
     }
@@ -123,7 +121,7 @@ setMethod(
     definition=function(paperDownloader, n=-1) {
         stopifnot(validObject(paperDownloader));
 
-        if (length(paperDownloader@papers) == 0) {
+        if (length(paperDownloader@paperIds) == 0) {
             paperDownloader <- getPapersIds(paperDownloader);
         }
 
@@ -132,36 +130,41 @@ setMethod(
             dir.create(papersDir, recursive=TRUE);
         }
 
-        actPapers <- paperDownloader@papers;
-        ids <- names(actPapers);
-        n <- ifelse(n < 0, length(ids), min(length(ids), n));
+        paperIds <- paperDownloader@paperIds;
+        n <- ifelse(n < 0, length(paperIds), min(length(paperIds), n));
 
-        actPapers[seq_len(n)] <- lapply(seq_len(n), function(i) {
-            actPaper <- actPapers[[ ids[[i]] ]];
-            if (!is(actPaper, 'Paper')) {
-                actPaper <- .downloadPaper(ids[[i]], database='pmc', papersDir=papersDir);
-            }
-            return(actPaper);
-        })
+        invisible(lapply(seq_len(n), function(i) {
+            actPaperId <- paperIds[[i]];
+            .downloadPaper(actPaperId, papersDir=papersDir);
+        }))
 
-        paperDownloader@papers <- actPapers;
-        return(invisible(paperDownloader));
+        return(paperDownloader);
     }
 )
 
 #'@importFrom XML xmlToList xmlParse
-.downloadPaper <- function(paperId, database='pmc', papersDir=character()) {
+#'
+#'@include methods-PapersManager.R
+#'
+.downloadPaper <- function(paperId, papersDir=character()) {
+    loadedPaper <- .getPapers(paperId);
+    if (!is.null(loadedPaper) && is(loadedPaper, 'Paper')) {
+        # Paper was already loaded
+        message('Was already loaded paper with ID: ', paperId);
+        return(loadedPaper);
+    }
+
+    database <- 'pmc';
     downloadUrl <- 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
     downloadUrl <- paste(downloadUrl, 'efetch.fcgi?db=', database, '&id=', paperId, sep='');
 
     paperFile <- paste0(paste0(papersDir, '/'), paperId, '.xml');
-
     if (length(papersDir) == 0 || !file.exists(paperFile)) {
         # if I dont want to save it. Or if I have not downloaded it
         tmpConnect <- url(downloadUrl, open='rb');
         outData <- readLines(tmpConnect, warn=FALSE, encoding='UTF-8');
         close.connection(tmpConnect);
-#         message('Downloaded paper with ID: ', paperId);
+        message('Downloaded paper with ID: ', paperId);
         if (length(papersDir) > 0) {
             # I want to download it
             writeLines(outData, paperFile);
@@ -169,7 +172,7 @@ setMethod(
     } else {
         # if I already have it
         outData <- readLines(paperFile, warn=FALSE, encoding='UTF-8');
-#         message('Loaded paper with ID: ', paperId);
+        message('Loaded paper with ID: ', paperId);
     }
     outData <- xmlParse(outData, encoding='UTF-8');
     myPaperlist <- xmlToList(outData);
@@ -185,7 +188,8 @@ setMethod(
     body <- myPaperlist$article$body;
     body <- ifelse(is.list(body), paste(rapply(body, paste), collapse=' '), '');
 
-    paper <- Paper(id=paperId, database=database, title=title, abstract=abstract, body=body, date=date);
+    paper <- Paper(id=paperId, title=title, abstract=abstract, body=body, date=date);
+    .addPaper(paper);
 
     return(paper);
 }
@@ -206,6 +210,7 @@ setGeneric(name='getPapers', def=function(paperDownloader, ...) {
 #'@aliases getPapers,PaperDownloader-method,numeric
 #'
 #'@include AllClasses.R
+#'@include methods-PapersManager.R
 #'
 setMethod(
     f='getPapers',
@@ -215,13 +220,14 @@ setMethod(
 
         paperDownloader <- downloadPapers(paperDownloader, n);
 
-        papers <- paperDownloader@papers;
+        paperIds <- paperDownloader@paperIds;
 
-        if (n > 0 && length(papers) > 0) {
-            papers <- papers[1:min(n, length(papers))];
+        if (n > 0 && length(paperIds) > 0) {
+            paperIds <- paperIds[1:min(n, length(paperIds))];
         } else if (n == 0) {
-            papers <- list();
+            paperIds <- NULL;
         }
+        papers <- .getPapers(paperIds)
 
         return(papers);
     }
