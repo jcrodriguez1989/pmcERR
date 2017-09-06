@@ -1,7 +1,7 @@
 Package: pmcERR
 Type: Package
 Title: PubMed Central Entity Relation Recognition
-Version: 0.1.0
+Version: 1.0.0
 Date: 2017-09-01
 Author: Juan C. Rodriguez, Franco M. Luque and Elmer A. Fernandez
 Maintainer: Juan C. Rodriguez <jcrodriguez@bdmg.com.ar>
