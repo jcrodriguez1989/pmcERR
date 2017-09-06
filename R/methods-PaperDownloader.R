@@ -87,6 +87,8 @@ setMethod(
     }
 )
 
+#'@importFrom utils URLencode
+#'
 .getQuery <- function(paperDownloader) {
     stopifnot(is(paperDownloader, 'PaperDownloader'));
     stopifnot(validObject(paperDownloader));
@@ -137,7 +139,7 @@ setMethod(
         actPapers[seq_len(n)] <- lapply(seq_len(n), function(i) {
             actPaper <- actPapers[[ ids[[i]] ]];
             if (!is(actPaper, 'Paper')) {
-                actPaper <- downloadPaper(ids[[i]], database='pmc', papersDir=papersDir);
+                actPaper <- .downloadPaper(ids[[i]], database='pmc', papersDir=papersDir);
             }
             return(actPaper);
         })
@@ -187,7 +189,7 @@ setMethod(
 
     return(paper);
 }
-downloadPaper <- .downloadPaper; # todo: delete
+# downloadPaper <- .downloadPaper; # todo: delete
 
 #'@name getPapers
 #'@inheritParams methods-PaperDownloader
