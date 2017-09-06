@@ -147,7 +147,7 @@ setMethod(
 #'@include methods-PapersManager.R
 #'
 .downloadPaper <- function(paperId, papersDir=character()) {
-    loadedPaper <- .getPapers(paperId);
+    loadedPaper <- .getPapers(paperId)[[1]];
     if (!is.null(loadedPaper) && is(loadedPaper, 'Paper')) {
         # Paper was already loaded
         message('Was already loaded paper with ID: ', paperId);
