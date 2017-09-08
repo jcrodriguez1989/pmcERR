@@ -14,15 +14,18 @@ URL: http://www.bdmg.com.ar/
 License: GPL (>= 2)
 Encoding: UTF-8
 LazyData: true
-Depends:
+Imports:
     methods,
     tokenizers,
-    XML
-Collate:
+    XML,
+    shiny,
+    shinyjs
+Collate: 
     'AllClasses.R'
     'AllGenerics.R'
     'methods-Paper.R'
     'methods-PaperDownloader.R'
     'methods-Relations.R'
+    'pmcERR.R'
     'pmcERRPackage.R'
 RoxygenNote: 5.0.1.9000
