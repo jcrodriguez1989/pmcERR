@@ -26,6 +26,6 @@ Collate:
     'methods-Paper.R'
     'methods-PaperDownloader.R'
     'methods-Relations.R'
-    'pmcERR.R'
     'pmcERRPackage.R'
+    'shiny-pmcERR.R'
 RoxygenNote: 5.0.1.9000
