@@ -60,7 +60,8 @@ setMethod(
         relatedSents <- lapply(papers, function(actPaper) {
             actSents <- getSentences(actPaper);
             related <- unlist(lapply(actSents, function(actSent) {
-                isRelated <- all(unlist(lapply(entities, grepl, actSent, ignore.case=TRUE)));
+                isRelated <- all(unlist(lapply(entities, grepl, actSent,
+                                               ignore.case=TRUE)));
                 return(isRelated);
             }))
             actSents[related];

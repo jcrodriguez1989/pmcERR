@@ -94,8 +94,9 @@ setMethod(
     definition=function(paper) {
         stopifnot(validObject(paper));
 
-        sentences <- tokenize_sentences(pmcERR:::.replaceAbbreviations(
-            paste(paper@title, paper@abstract, paper@body, sep='. ')), simplify=TRUE);
+        sentences <- tokenize_sentences(.replaceAbbreviations(
+            paste(paper@title, paper@abstract, paper@body, sep='. ')),
+                simplify=TRUE);
 
         if (is.list(sentences)) {
             sentences <- as.character(sentences);
@@ -105,7 +106,9 @@ setMethod(
 )
 
 .replaceAbbreviations <- function(sentence) {
-    abbreviations <- c('Fig.', 'al.', 'vs.', 'Vs.', 'min.', 'Min.', 'max.', 'Max.', 'e.g.', 'E.g.', 'Dr.', 'St.', 'i.e.', 'Inc.', 'Figs.', 'Ref.', 'sp.');
+    abbreviations <- c('Fig.', 'al.', 'vs.', 'Vs.', 'min.', 'Min.', 'max.',
+                       'Max.', 'e.g.', 'E.g.', 'Dr.', 'St.', 'i.e.', 'Inc.',
+                       'Figs.', 'Ref.', 'sp.');
     for (abb in abbreviations) {
         abbRepl <- gsub('.', '', abb, fixed=TRUE);
         sentence <- gsub(abb, abbRepl, sentence, fixed=TRUE);

@@ -156,7 +156,8 @@ setMethod(
 
     database <- 'pmc';
     downloadUrl <- 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
-    downloadUrl <- paste(downloadUrl, 'efetch.fcgi?db=', database, '&id=', paperId, sep='');
+    downloadUrl <- paste(downloadUrl, 'efetch.fcgi?db=', database, '&id=',
+                         paperId, sep='');
 
     paperFile <- paste0(paste0(papersDir, '/'), paperId, '.xml');
     if (length(papersDir) == 0 || !file.exists(paperFile)) {
@@ -178,17 +179,22 @@ setMethod(
     myPaperlist <- xmlToList(outData);
 
     title <- myPaperlist$article$front$`article-meta`$`title-group`$`article-title`;
-    title <- ifelse(is.list(title), paste(rapply(title, paste), collapse=' '), title);
+    title <- ifelse(is.list(title), paste(rapply(title, paste), collapse=' '),
+                    title);
     date <- myPaperlist$article$front$`article-meta`$`pub-date`;
-    date <- try({ as.Date(paste(date$year, date$month, date$day, sep='-')); }, silent=TRUE);
+    date <- try({ as.Date(paste(date$year, date$month, date$day, sep='-')); },
+                silent=TRUE);
     if (inherits(date, 'try-error')) date <- as.Date('1918-08-18');
     abstract <- myPaperlist$article$front$`article-meta`$abstract;
     abstract <- abstract[!grepl('.attrs', names(abstract))];
-    abstract <- ifelse(is.list(abstract), paste(rapply(abstract, paste), collapse=' '), '');
+    abstract <- ifelse(is.list(abstract), paste(rapply(abstract, paste),
+                                                collapse=' '), '');
     body <- myPaperlist$article$body;
-    body <- ifelse(is.list(body), paste(rapply(body, paste), collapse=' '), '');
+    body <- ifelse(is.list(body), paste(rapply(body, paste),
+                                        collapse=' '), '');
 
-    paper <- Paper(id=paperId, title=title, abstract=abstract, body=body, date=date);
+    paper <- Paper(id=paperId, title=title, abstract=abstract, body=body,
+                   date=date);
     .addPaper(paper);
 
     return(paper);
