@@ -26,7 +26,7 @@ newSearchPage <- function() {
 
 downloadPage <- function() {
     wellPanel(
-        dataTableOutput(outputId='outputdtable'),
+        DT::dataTableOutput(outputId='outputdtable'),
         fluidRow(
             column(4, textInput(inputId='maxPapersInput', label=NULL,
                             placeholder='Max papers to download per entity')),

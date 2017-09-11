@@ -6,6 +6,7 @@
 #
 
 library(shiny);
+library(DT);
 
 shinyServer(function(input, output, session) {
     pprDldrs <- list(); # global variable for PaperDownloader objects
@@ -187,15 +188,14 @@ updateNewSearchPage <- function(entities, session) {
 }
 
 updateDownloadPage <- function(outtable, output) {
-    require(DT);
     outtable <- as.data.frame(outtable);
     outtable[,2] <- as.numeric(as.character(outtable[,2]));
-    output$outputdtable <- renderDataTable({
-        datatable(outtable, extensions='Buttons',
+    output$outputdtable <- DT::renderDataTable(
+        DT::datatable(outtable, extensions='Buttons',
                    options=list(
                        dom='Bfrtip',
                        buttons=c('copy', 'csv', 'excel'))
-                   ) });
+                   ));
 }
 
 updateRelationsPage <- function(relations, session) {
