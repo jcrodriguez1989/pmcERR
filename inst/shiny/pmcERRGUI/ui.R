@@ -23,11 +23,12 @@ newSearchPage <- function() {
 
 downloadPage <- function() {
     wellPanel(
-        dataTableOutput(outputId='outputdtable'),
+        DT::dataTableOutput(outputId='outputdtable'),
         fluidRow(
             # column(4, numericInput(inputId='maxPapersInput', label=NULL, value=NA)),
-            column(4, textInput(inputId='maxPapersInput', label=NULL, placeholder='Max papers to download per entity')),
-            column(8, actionButton(inputId='downloadbutton', label='Download', width='100%')))
+            column(3, textInput(inputId='maxPapersInput', label=NULL, placeholder='Max papers to download per entity')),
+            column(3, textInput(inputId='ignoreEntsInput', label=NULL, placeholder='Exclude entities with more than #papers')),
+            column(6, actionButton(inputId='downloadbutton', label='Download', width='100%')))
     )
 }
 
