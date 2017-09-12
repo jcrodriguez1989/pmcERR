@@ -79,7 +79,7 @@ setMethod(
         papersIds <- sort(papersIds, decreasing=TRUE);
         message(length(papersIds), ' papers to download')
 
-        paperDownloader@paperIds <- papersIds;
+        paperDownloader@paperIds <- as.character(papersIds);
 
         return(invisible(paperDownloader));
     }
