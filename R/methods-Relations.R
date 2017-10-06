@@ -48,6 +48,7 @@ setGeneric(name='getRelations', def=function(papers, entities) {
 #'@aliases getRelations,list,character
 #'
 #'@include AllClasses.R
+#'@include methods-Relation.R
 #'
 setMethod(
     f='getRelations',
@@ -72,9 +73,11 @@ setMethod(
         relatedSents <- relatedSents[relatedOnes];
 
         relations <- lapply(seq_along(relatedPapers), function(i) {
-            Relation(
+            actRel <- Relation(
                 paper=relatedPapers[[i]],
                 relatedSents=relatedSents[[i]])
+            actRel <- getRelevance(actRel);
+            return(actRel);
         })
 
         res <- Relations(

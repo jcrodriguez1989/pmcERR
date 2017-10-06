@@ -69,7 +69,8 @@ Relation <- setClass(
     Class='Relation',
     slots=c(
         paper='Paper',
-        relatedSents='character'
+        relatedSents='character',
+        relevance='numeric'
     ),
     prototype=list(
     ),
