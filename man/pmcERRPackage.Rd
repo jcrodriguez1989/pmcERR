@@ -24,4 +24,3 @@ and Elmer A. Fernandez \email{efernandez@bdmg.com.ar}
 \keyword{PubMed}
 \keyword{Recognition,}
 \keyword{Relation}
-

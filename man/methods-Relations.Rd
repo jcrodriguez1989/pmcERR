@@ -2,10 +2,11 @@
 % Please edit documentation in R/methods-Relations.R
 \docType{methods}
 \name{methods-Relations}
+\alias{methods-Relations}
 \alias{getRelations}
 \alias{getRelations,list,character}
 \alias{getRelations,list,character-method}
-\alias{methods-Relations}
+\alias{getRelations,list,character}
 \title{Relations methods}
 \usage{
 "methods-Relations"(papers, entities)
@@ -44,4 +45,3 @@ papers <- getPapers(pprDldr, n=3);
 relations <- getRelations(papers, entities);
 
 }
-

@@ -12,4 +12,6 @@
 #'and Elmer A. Fernandez \email{efernandez@@bdmg.com.ar}
 #'@keywords Entity Relation Recognition, PubMed Central, NLP, Data Mining
 #'@import methods
+#'@importFrom shinyjs enable disable
+#'@import knitr
 NULL

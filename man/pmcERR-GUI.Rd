@@ -2,8 +2,8 @@
 % Please edit documentation in R/shiny-pmcERR.R
 \docType{methods}
 \name{pmcERR-GUI}
-\alias{pmcERR}
 \alias{pmcERR-GUI}
+\alias{pmcERR}
 \title{pmcERR GUI}
 \usage{
 pmcERR()
@@ -19,4 +19,3 @@ pmcERR();
 }
 
 }
-

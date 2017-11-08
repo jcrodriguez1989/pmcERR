@@ -11,7 +11,8 @@ newSearchPage <- function() {
     wellPanel(
         fluidRow(
             # column(6, selectInput(inputId='databaseInput', label='Database', list(PMC='pmc'), selected=NULL)),
-            column(6, textInput(inputId='sepInput', label='Separator character', value='|'))),
+            column(6, textInput(inputId='sepInput', label='Separator character', value='|')),
+            column(3, checkboxInput(inputId="exactMatchInput", label="Exact match", value=!F))),
         wellPanel(
             fluidRow(
                 column(5, fileInput(inputId='entitiesInputFile', label=NULL, buttonLabel='Load entities file')),
@@ -38,7 +39,9 @@ relationsPage <- function() {
             column(8, selectInput(inputId='entitySelInput', label='Entities', list(), selected=NULL, multiple=TRUE, size=10, selectize=FALSE)),
             # column(1, actionButton(inputId='relsFilterbutton', label=NULL, icon=icon('filter'))),
             column(4, selectInput(inputId='paperSelInput', label='Related papers IDs', list(), selected=NULL, size=10, selectize=FALSE))),
-        downloadButton('downloadResLink', 'Download results'),
+        fluidRow(
+            column(2, downloadButton('downloadResLink', 'Download results')),
+            column(2, actionButton(inputId='plotNetwbtn', label='Plot as network'))),
         br(),
         br(),
         wellPanel(
@@ -49,6 +52,12 @@ relationsPage <- function() {
             textInput(inputId='paperLink', label=NULL),
             htmlOutput(outputId='paperOutput')
         )
+    )
+}
+
+networkPage <- function() {
+    wellPanel(
+        visNetworkOutput("networkPlot", height='700px')
     )
 }
 
@@ -63,6 +72,7 @@ shinyUI(
                    tabPanel('New search', newSearchPage(), selected=TRUE),
                    tabPanel('Download', downloadPage()),
                    tabPanel('Relations', relationsPage()),
+                   tabPanel('Network', networkPage()),
                    tabPanel('Load results', loadResPage())
         )
     )

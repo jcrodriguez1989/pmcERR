@@ -6,7 +6,7 @@
 #'@slot entities character vector of entities.
 #'@slot papers list of papers, will be filled when downloaded.
 #'@slot papersDir character indicating the path to locally store papers (can be
-#'character() in order to dont store them).
+#'character() in order to don't store them).
 #'
 #'
 #'@docType methods
@@ -70,7 +70,8 @@ Relation <- setClass(
     slots=c(
         paper='Paper',
         relatedSents='character',
-        relevance='numeric'
+        entities='character',
+        relevance='list'
     ),
     prototype=list(
     ),
@@ -84,7 +85,8 @@ Relations <- setClass(
     Class='Relations',
     slots=c(
         entities='character',
-        relatedPapers='list' # list of Relation objects
+        relatedPapers='list', # list of Relation objects
+        relevance='numeric'
     ),
     prototype=list(
     ),

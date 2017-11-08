@@ -2,15 +2,18 @@
 % Please edit documentation in R/methods-PaperDownloader.R
 \docType{methods}
 \name{methods-PaperDownloader}
+\alias{methods-PaperDownloader}
+\alias{getPapersIds}
+\alias{getPapersIds,PaperDownloader-method}
+\alias{getPapersIds,PaperDownloader-method}
 \alias{downloadPapers}
+\alias{downloadPapers,PaperDownloader-method}
 \alias{downloadPapers,PaperDownloader-method}
 \alias{downloadPapers,PaperDownloader-method,numeric}
 \alias{getPapers}
 \alias{getPapers,PaperDownloader-method}
+\alias{getPapers,PaperDownloader-method}
 \alias{getPapers,PaperDownloader-method,numeric}
-\alias{getPapersIds}
-\alias{getPapersIds,PaperDownloader-method}
-\alias{methods-PaperDownloader}
 \title{PaperDownloader methods}
 \usage{
 "methods-PaperDownloader"(paperDownloader)
@@ -41,7 +44,7 @@ objects.
 \description{
 Methods to work with a PaperDownloader.
 \code{getPapersIds} gets the number of papers possible to download that
-relate the entities. Updates the PaperDownloader.
+relate the entities. And updates the PaperDownloader.
 \code{downloadPapers} downloads the papers (n is the max desired to download).
 \code{getPapers} gets the list of downloaded Paper objects (n is the max
 desired to download).
@@ -65,4 +68,3 @@ length(papers);
 \seealso{
 \code{\link{AllClasses}}
 }
-

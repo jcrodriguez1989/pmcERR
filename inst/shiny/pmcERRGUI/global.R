@@ -1,3 +1,3 @@
-require(shinyjs);
-require(pmcERR);
-
+require('shinyjs');
+require('pmcERR');
+require('visNetwork');

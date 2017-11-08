@@ -2,11 +2,13 @@
 % Please edit documentation in R/methods-Paper.R
 \docType{methods}
 \name{methods-Paper}
+\alias{methods-Paper}
 \alias{getFullPaper}
+\alias{getFullPaper,Paper-method}
 \alias{getFullPaper,Paper-method}
 \alias{getSentences}
 \alias{getSentences,Paper-method}
-\alias{methods-Paper}
+\alias{getSentences,Paper-method}
 \title{Paper methods}
 \usage{
 "methods-Paper"(paper)
@@ -43,4 +45,3 @@ paper <- papers[[1]];
 getSentences(paper);
 
 }
-

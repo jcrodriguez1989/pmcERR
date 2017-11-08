@@ -51,8 +51,9 @@ shinyServer(function(input, output, session) {
             pprDldrs <<- lapply(seq_along(entitiesList), function(i) {
                 entities <- entitiesList[[i]];
                 progress$set(value=i);
-                pprDldr <- PaperDownloader(entities=entities, papersDir='./papers');
-                pprDldr <- getPapersIds(pprDldr);
+                # pprDldr <- PaperDownloader(entities=entities, papersDir='./papers');
+                pprDldr <- PaperDownloader(entities=entities, papersDir='/home/jcrodriguez/mytmp/papers/'); # todo: delete
+                pprDldr <- getPapersIds(pprDldr, input$exactMatchInput);
             })
 
             outtable <- cbind(Entities=entitiesInput,
@@ -70,7 +71,8 @@ shinyServer(function(input, output, session) {
         if (is.na(maxPapers)) {
             maxPapers <- -1;
         }
-        message('Max papers: ', maxPapers);
+
+        if (maxPapers >= 0) message('Max papers: ', maxPapers);
 
         ignoreEnts <- as.numeric(input$ignoreEntsInput);
         if (is.na(ignoreEnts)) {
@@ -82,11 +84,12 @@ shinyServer(function(input, output, session) {
         progress$set(message='Downloading papers',
                      detail='This may take a while...');
 
-        relations <<- lapply(seq_along(pprDldrs), function(i) {
+        rels <- lapply(seq_along(pprDldrs), function(i) {
             pprDldr <- pprDldrs[[i]];
             progress$set(value=i);
 
-            if (length(pprDldr@paperIds) > ignoreEnts) {
+            if (length(pprDldr@paperIds) > ignoreEnts ||
+                length(pprDldr@paperIds) == 0) {
                 return(pmcERR:::Relations(entities=pprDldr@entities));
             }
 
@@ -95,7 +98,129 @@ shinyServer(function(input, output, session) {
             getRelations(actPapers, pprDldr@entities);
         })
 
+        relsRelevance <- unlist(lapply(rels, pmcERR:::getRelevance));
+        rels <- rels[order(relsRelevance, decreasing=TRUE)];
+
+        relations <<- rels;
+
         updateRelationsPage(relations, session);
+        enablebuttons();
+    })
+
+    observeEvent(input$plotNetwbtn, {
+        disablebuttons();
+        print('Plot network button clicked.');
+
+        entChoices <- input$entitySelInput;
+        entChoices <- as.numeric(entChoices);
+
+        actRelations <- relations[entChoices];
+
+        ### create network nodes
+        ## entities nodes
+        entNodes <- do.call(rbind, lapply(actRelations, function(actRels) {
+            actId <- paste(actRels@entities, collapse=paste('', input$sepInput, ''));
+            actGroup <- paste(actRels@entities, collapse=', ');
+            actRelevance <- actRels@relevance;
+            c(id=actId, label=actId, title='', group=actGroup, value=actRelevance, shape='dot');
+        }))
+        # normalize values
+        values <- as.numeric(entNodes[,'value']);
+        values <- (values - min(values)) / (max(values)-min(values))
+        entNodes[,'value'] <- as.character(values);
+
+        ## paper nodes
+        paperNodes <- do.call(rbind, lapply(actRelations, function(actRels) {
+            # actRels <- actRelations[[1]];
+            do.call(rbind, lapply(actRels@relatedPapers, function(actRel) {
+                # actRel <- actRels@relatedPapers[[1]];
+                actPaper <- actRel@paper;
+                actId <- actPaper@id;
+                actLink <- paste('https://www.ncbi.nlm.nih.gov/pmc/articles/PMC', actPaper@id, sep='');
+                acttitle <- paste0(actPaper@title, '<br><a href="', actLink, '" target="_blank">Link</a>');
+
+                actRelevance <- (actRel@relevance)$relevance;
+
+                c(id=actId, label='', title=acttitle, group='', value=actRelevance, shape='square');
+            }))
+        }))
+
+        # merge repeated papers
+        paperIdstable <- table(paperNodes[,'id']);
+        finalPaperNodes <- paperNodes[paperNodes[,'id'] %in% names(paperIdstable)[paperIdstable == 1], ]; # get unique papers
+        repeatedPapersIds <- names(paperIdstable)[paperIdstable > 1];
+        mergedPapers <- do.call(rbind, lapply(repeatedPapersIds, function(actPaperId) {
+            actPaperNodes <- paperNodes[paperNodes[,'id'] == actPaperId,];
+            actRes <- actPaperNodes[1,];
+            actRes['value'] <- sum(as.numeric(actPaperNodes[,'value'])); # sum relevances of repeated papers
+            return(actRes);
+        }));
+        finalPaperNodes <- rbind(finalPaperNodes, mergedPapers);
+        # normalize values
+        values <- as.numeric(finalPaperNodes[,'value']);
+        values <- (values - min(values)) / (max(values)-min(values))
+        finalPaperNodes[,'value'] <- as.character(values);
+
+        stopifnot(all.equal(colnames(entNodes), colnames(finalPaperNodes)));
+        nodes <- rbind(entNodes, finalPaperNodes);
+        nodes <- data.frame(nodes);
+        nodes$value <- as.numeric(as.character(nodes$value));
+
+        ### create network edges
+        ## entities <-> papers edges
+        entPaperEdges <- do.call(rbind, lapply(actRelations, function(actRels) {
+            # actRels <- actRelations[[1]];
+            do.call(rbind, lapply(actRels@relatedPapers, function(actRel) {
+                # actRel <- actRels@relatedPapers[[1]];
+                actPaper <- actRel@paper;
+                actPaperId <- actPaper@id;
+                actEntId <- paste(actRel@entities, collapse=paste('', input$sepInput, ''));
+
+                actRelevance <- (actRel@relevance)$relevance;
+
+                c(from=actEntId, to=actPaperId, value=actRelevance, color='black');
+            }))
+        }))
+        # normalize values
+        values <- as.numeric(entPaperEdges[,'value']);
+        values <- (values - min(values)) / (max(values)-min(values))
+        entPaperEdges[,'value'] <- as.character(values);
+
+        ## entities <-> entities edges
+        # combns <- combn(seq_along(actRelations), 2);
+        # entEntEdges <- do.call(rbind, lapply(seq_len(ncol(combns)), function(i) {
+        #     ents1 <- actRelations[[ combns[1,i] ]]@entities;
+        #     ents2 <- actRelations[[ combns[2,i] ]]@entities;
+        #
+        #     entsInters <- intersect(ents1, ents2);
+        #     if (length(entsInters) == 0) return(NA);
+        #
+        #     entsUnion <- union(ents1, ents2);
+        #
+        #     actFrom <- paste(ents1, collapse=paste('', input$sepInput, ''));
+        #     actto   <- paste(ents2, collapse=paste('', input$sepInput, ''));
+        #     actRelevance <- length(entsInters) / length(entsUnion);
+        #
+        #     c(from=actFrom, to=actto, value=actRelevance, color='black');
+        # }));
+        # entEntEdges <- entEntEdges[rowSums(is.na(entEntEdges)) == 0,,drop=FALSE];
+
+        # stopifnot(all.equal(colnames(entPaperEdges), colnames(entEntEdges)));
+        # edges <- rbind(entPaperEdges, entEntEdges);
+        # edges <- data.frame(edges);
+        edges <- data.frame(entPaperEdges)
+        edges$value <- as.numeric(as.character(edges$value));
+
+        output$networkPlot <- renderVisNetwork({
+            visNetwork(nodes, edges, width="100%") %>%
+            #     visIgraphLayout() %>%
+                visOptions(selectedBy=list(variable="group", multiple=TRUE))
+            # %>%
+            #     visLegend()
+        })
+
+        updateTabsetPanel(session, 'maintabset', selected='Network');
+
         enablebuttons();
     })
 
@@ -108,7 +233,7 @@ shinyServer(function(input, output, session) {
     })
 
     observeEvent(input$paperSelInput, {
-        print('PaperSelInput event.');
+        # print('PaperSelInput event.');
         selectedPaper <- input$paperSelInput;
         showRelation(relations, selectedPaper, output, session);
     })
@@ -141,23 +266,34 @@ updatePapersSelector <- function(relations, entChoices, session) {
     # paperChoices selections will be 'ENTINDEX-PAPERINDEX'
     entChoices <- as.numeric(entChoices);
 
-    paperChoices <- unlist(lapply(entChoices, function(i) {
+    paperChoices <- do.call(rbind, lapply(entChoices, function(i) {
         actRel <- relations[[i]];
         if (length(actRel@relatedPapers) == 0) return(NA);
 
         actRelPapers <- actRel@relatedPapers;
-        res <- paste(i, seq_along(actRelPapers), sep='-');
-        names(res) <- unlist(lapply(actRelPapers, function(x) x@paper@id));
+        relevances <- unlist(lapply(actRelPapers, function(x) {
+            pmcERR:::getRelevance(x)$relevance
+        }));
+
+        res <- cbind(
+            intId=paste(i, seq_along(actRelPapers), sep='-'),
+            relevances);
+        rownames(res) <- unlist(lapply(actRelPapers, function(x) x@paper@id));
         return(res);
     }))
 
-    if (!is.null(paperChoices)) {
-        paperChoices <- paperChoices[!is.na(paperChoices)];
+    paperChoices <- paperChoices[rowSums(is.na(paperChoices)) == 0,,drop=FALSE];
+    paperChoices <- paperChoices[order(as.numeric(paperChoices[,2]), decreasing=TRUE),,drop=FALSE];
+    choices <- paperChoices[,1];
+    names(choices) <- rownames(paperChoices);
+
+    if (!is.null(choices)) {
+        choices <- choices[!is.na(choices)];
     } else {
-        paperChoices <- list();
+        choices <- list();
     }
 
-    updateSelectInput(session, 'paperSelInput', choices=paperChoices);
+    updateSelectInput(session, 'paperSelInput', choices=choices);
 }
 
 showRelation <- function(relations, selectedPaper, output, session) {
@@ -219,6 +355,7 @@ enablebuttons <- function() {
     enable('searchbutton');
     enable('downloadbutton');
     enable('downloadResLink');
+    enable('plotNetwbtn');
     enable('loadResInputFile');
 }
 
@@ -226,5 +363,6 @@ disablebuttons <- function() {
     disable('searchbutton');
     disable('downloadbutton');
     disable('downloadResLink');
+    disable('plotNetwbtn');
     disable('loadResInputFile');
 }

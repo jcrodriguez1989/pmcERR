@@ -2,13 +2,15 @@
 #'
 #'Methods to work with a PaperDownloader.
 #'\code{getPapersIds} gets the number of papers possible to download that
-#'relate the entities. Updates the PaperDownloader.
+#'relate the entities. And updates the PaperDownloader.
 #'\code{downloadPapers} downloads the papers (n is the max desired to download).
 #'\code{getPapers} gets the list of downloaded Paper objects (n is the max
 #'desired to download).
 #'
 #'@param paperDownloader a PaperDownloader object.
 #'@param n (optional) numeric parameter.
+#'@param exactMatch (optional) logical indicating if entities must be matched
+#'exactly. Ie each entity between quotation marks when querying. Default: TRUE.
 #'@param ... not in use.
 #'
 #'@return PaperDownloader object with updated values. Or a list of Paper
@@ -44,7 +46,7 @@ setGeneric(name='methods-PaperDownloader', def=function(paperDownloader) {
 #'@aliases getPapersIds,PaperDownloader-method
 #'@exportMethod getPapersIds
 #'
-setGeneric(name='getPapersIds', def=function(paperDownloader) {
+setGeneric(name='getPapersIds', def=function(paperDownloader, ...) {
     standardGeneric('getPapersIds')
 })
 
@@ -59,26 +61,29 @@ setGeneric(name='getPapersIds', def=function(paperDownloader) {
 setMethod(
     f='getPapersIds',
     signature=c('PaperDownloader'),
-    definition=function(paperDownloader) {
+    definition=function(paperDownloader, exactMatch=TRUE) {
         stopifnot(validObject(paperDownloader));
 
-        query <- .getQuery(paperDownloader);
+        query <- .getQuery(paperDownloader, exactMatch);
         queryUrl <- 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/'; # ncbi api
         database <- 'pmc'; # PubMed Central papers
 
         completeUrl <- paste(queryUrl, 'esearch.fcgi?db=', database, '&term=',
             query, '&retmax=999999', sep='');
 
-        IDconnect <- url(completeUrl, open='rb'); # todo: poner try
-        idXML <- readLines(IDconnect, warn=FALSE, encoding='UTF-8');
-        idXML <- xmlTreeParse(idXML);
-        close.connection(IDconnect);
-        myIDlist <- xmlToList(idXML);
+        idXML <- .downloadXml(completeUrl, tries=5); # try to download the xml
+        papersIds <- character();
+        if (is.character(idXML)) {
+            idXML <- xmlTreeParse(idXML);
+            myIDlist <- xmlToList(idXML);
 
-        papersIds <- unlist(myIDlist$IdList);
-        papersIds <- sort(papersIds, decreasing=TRUE);
+            papersIds <- unlist(myIDlist$IdList);
+            if (length(papersIds) > 0)
+                papersIds <- sort(papersIds, decreasing=TRUE);
+        } else {
+            warning(paste('Error downloading', completeUrl));
+        }
         message(length(papersIds), ' papers to download')
-
         paperDownloader@paperIds <- as.character(papersIds);
 
         return(invisible(paperDownloader));
@@ -87,11 +92,17 @@ setMethod(
 
 #'@importFrom utils URLencode
 #'
-.getQuery <- function(paperDownloader) {
+.getQuery <- function(paperDownloader, exactMatch) {
     stopifnot(is(paperDownloader, 'PaperDownloader'));
     stopifnot(validObject(paperDownloader));
     entities <- paperDownloader@entities;
-    query <- paste('("', entities, '")', sep='', collapse='AND');
+
+    if (exactMatch) {
+        query <- paste('("', entities, '")', sep='', collapse='AND');
+    } else {
+        query <- paste('(', entities, ')', sep='', collapse='AND');
+    }
+
     query <- URLencode(query, reserved=TRUE);
     query <- gsub('%20', '+', query);
     return(query);
@@ -162,11 +173,9 @@ setMethod(
     paperFile <- paste0(paste0(papersDir, '/'), paperId, '.xml');
     if (length(papersDir) == 0 || !file.exists(paperFile)) {
         # if I dont want to save it. Or if I have not downloaded it
-        tmpConnect <- url(downloadUrl, open='rb');
-        outData <- readLines(tmpConnect, warn=FALSE, encoding='UTF-8');
-        close.connection(tmpConnect);
+        outData <- .downloadXml(downloadUrl, tries=5);
         message('Downloaded paper with ID: ', paperId);
-        if (length(papersDir) > 0) {
+        if (length(papersDir) > 0 && !is.na(outData[[1]])) {
             # I want to download it
             writeLines(outData, paperFile);
         }
@@ -175,8 +184,17 @@ setMethod(
         outData <- readLines(paperFile, warn=FALSE, encoding='UTF-8');
         message('Loaded paper with ID: ', paperId);
     }
+
+    if (is.na(outData[[1]])) {
+        return(NA);
+    }
     outData <- xmlParse(outData, encoding='UTF-8');
     myPaperlist <- xmlToList(outData);
+
+    if (names(myPaperlist) == 'error') {
+        # server side error
+        return(NA);
+    }
 
     title <- myPaperlist$article$front$`article-meta`$`title-group`$`article-title`;
     title <- ifelse(is.list(title), paste(rapply(title, paste), collapse=' '),
@@ -233,8 +251,36 @@ setMethod(
         } else if (n == 0) {
             paperIds <- NULL;
         }
-        papers <- .getPapers(paperIds)
+        papers <- .getPapers(paperIds);
+        papers <- papers[!is.na(names(papers))];
 
         return(papers);
     }
 )
+
+.downloadXml <- function(downloadUrl, tries=1L) {
+    tries <- as.integer(tries);
+    stopifnot(length(tries) == 1L, !is.na(tries));
+
+    while (tries > 0L) {
+        hasError <- try({
+            tmpConnect <- url(downloadUrl, open='rb');
+            outData <- readLines(tmpConnect, warn=FALSE, encoding='UTF-8');
+            close.connection(tmpConnect);
+        }, silent=TRUE);
+
+        if (inherits(hasError, 'try-error')) {
+            warning(paste('Retrying to download:', downloadUrl));
+            tries <- tries - 1L;
+        } else {
+            break;
+        }
+
+    }
+
+    if (tries == 0L) {
+        outData <- NA;
+    }
+
+    return(outData);
+}

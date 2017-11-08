@@ -1,0 +1,31 @@
+Basal-like | GO:0009888
+Basal-like | GO:0007275
+Basal-like | microvilli
+Basal-like | caspase-independent cell death
+Basal-like | multicellular organismal process
+Basal-like | tube development
+Basal-like | membrane-bounded organelle
+Luminal B | regulation of programmed cell death
+Luminal B | organelle
+Luminal B | exosome
+Luminal B | positive regulation of cell proliferation
+Luminal B | response to stimulus
+Luminal A | cellular component
+Luminal A | positive regulation of cell proliferation
+Luminal A | response to stimulus
+Luminal A | G2/M checkpoint
+Luminal A | mitotic cell cycle
+Luminal A | GO:0000280
+Luminal A | nuclear division
+Luminal A | origin recognition complex
+Luminal A | oocyte maturation
+Luminal A | nucleoplasm
+Luminal A | DNA recombination
+Luminal A | DNA packaging
+Luminal A | microtubule-based process
+Luminal A | GO:0007067
+Luminal A | microtubule cytoskeleton
+Luminal A | cell cycle process
+Luminal A | chromosome condensation
+Luminal A | histone chaperone
+Luminal A | regulation of protein kinase activity

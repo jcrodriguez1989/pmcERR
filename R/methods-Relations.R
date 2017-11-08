@@ -48,7 +48,7 @@ setGeneric(name='getRelations', def=function(papers, entities) {
 #'@aliases getRelations,list,character
 #'
 #'@include AllClasses.R
-#'@include methods-Relation.R
+#'@include methods-relevance.R
 #'
 setMethod(
     f='getRelations',
@@ -57,12 +57,14 @@ setMethod(
         stopifnot(all(unlist(lapply(papers, is, class='Paper'))));
         # todo: check that entities is list of strings
 
+        lowEnts <- tolower(entities);
         # Relations(entities='list', relatedPapers='list');
         relatedSents <- lapply(papers, function(actPaper) {
             actSents <- getSentences(actPaper);
-            related <- unlist(lapply(actSents, function(actSent) {
-                isRelated <- all(unlist(lapply(entities, grepl, actSent,
-                                               ignore.case=TRUE)));
+            lowActSents <- tolower(actSents);
+            related <- unlist(lapply(lowActSents, function(actSent) {
+                isRelated <- all(unlist(lapply(lowEnts, grepl, actSent,
+                                               fixed=TRUE)));
                 return(isRelated);
             }))
             actSents[related];
@@ -75,14 +77,18 @@ setMethod(
         relations <- lapply(seq_along(relatedPapers), function(i) {
             actRel <- Relation(
                 paper=relatedPapers[[i]],
-                relatedSents=relatedSents[[i]])
+                relatedSents=relatedSents[[i]],
+                entities=entities)
             actRel <- getRelevance(actRel);
+            stopifnot(is(actRel, 'Relation'));
             return(actRel);
         })
 
         res <- Relations(
             entities=entities,
             relatedPapers=relations);
+        res <- getRelevance(res);
+        stopifnot(is(res, 'Relations'));
 
         return(res);
     }

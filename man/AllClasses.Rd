@@ -16,8 +16,9 @@ PaperDownloader class is used to download papers given some entities.
 \item{\code{papers}}{list of papers, will be filled when downloaded.}
 
 \item{\code{papersDir}}{character indicating the path to locally store papers (can be
-character() in order to dont store them).}
+character() in order to don't store them).}
 }}
+
 \examples{
 ## Create a PaperDownloader to query for two entities relations
 entities <- c('terminal differentiation', 'basal-like');
@@ -27,4 +28,3 @@ pprDldr <- PaperDownloader(entities=entities, papersDir='/tmp/pmcERR/');
 \seealso{
 \code{\link{methods-PaperDownloader}}
 }
-
