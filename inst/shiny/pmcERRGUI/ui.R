@@ -1,17 +1,11 @@
-
-# This is the user-interface definition of a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
-
-library(shiny)
+library(shiny);
 
 newSearchPage <- function() {
     wellPanel(
         fluidRow(
             # column(6, selectInput(inputId='databaseInput', label='Database', list(PMC='pmc'), selected=NULL)),
-            column(6, textInput(inputId='sepInput', label='Separator character', value='|')),
+            column(4, textInput(inputId='sepInput', label='Separator character', value='|')),
+            column(5, textInput(inputId='papersDir', label='Papers tmp dir', value=paste0(Sys.getenv('HOME'), '/pmcERR_papersDir/'))),
             column(3, checkboxInput(inputId="exactMatchInput", label="Exact match", value=!F))),
         wellPanel(
             fluidRow(

@@ -1,10 +1,3 @@
-
-# This is the server logic for a Shiny web application.
-# You can find out more about building applications with Shiny here:
-#
-# http://shiny.rstudio.com
-#
-
 library(shiny);
 
 shinyServer(function(input, output, session) {
@@ -52,7 +45,8 @@ shinyServer(function(input, output, session) {
                 entities <- entitiesList[[i]];
                 progress$set(value=i);
                 # pprDldr <- PaperDownloader(entities=entities, papersDir='./papers');
-                pprDldr <- PaperDownloader(entities=entities, papersDir='/home/jcrodriguez/mytmp/papers/'); # todo: delete
+                pprDldr <- PaperDownloader(entities=entities, papersDir=input$papersDir);
+                # pprDldr <- PaperDownloader(entities=entities, papersDir='/home/jcrodriguez/mytmp/papers/'); # todo: delete
                 pprDldr <- getPapersIds(pprDldr, input$exactMatchInput);
             })
 
@@ -283,9 +277,14 @@ updatePapersSelector <- function(relations, entChoices, session) {
     }))
 
     paperChoices <- paperChoices[rowSums(is.na(paperChoices)) == 0,,drop=FALSE];
-    paperChoices <- paperChoices[order(as.numeric(paperChoices[,2]), decreasing=TRUE),,drop=FALSE];
-    choices <- paperChoices[,1];
-    names(choices) <- rownames(paperChoices);
+
+    if (nrow(paperChoices) > 0) {
+        paperChoices <- paperChoices[order(as.numeric(paperChoices[,2]), decreasing=TRUE),,drop=FALSE];
+        choices <- paperChoices[,1];
+        names(choices) <- rownames(paperChoices);
+    } else {
+        choices <- NULL;
+    }
 
     if (!is.null(choices)) {
         choices <- choices[!is.na(choices)];
