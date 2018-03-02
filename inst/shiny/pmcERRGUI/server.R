@@ -87,7 +87,7 @@ shinyServer(function(input, output, session) {
 
             if (length(pprDldr@paperIds) > ignoreEnts ||
                 length(pprDldr@paperIds) == 0) {
-                return(pmcERR:::Relations(entities=pprDldr@entities));
+                return(pmcERR:::Relations(entities=pprDldr@entities, relevance=-Inf));
             }
 
             pprDldr <- downloadPapers(pprDldr, n=maxPapers);
