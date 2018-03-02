@@ -1,5 +1,8 @@
 library(shiny);
 
+# shiny max file upload size to 30MB
+options(shiny.maxRequestSize=30*1024^2);
+
 shinyServer(function(input, output, session) {
     pprDldrs <- list(); # global variable for PaperDownloader objects
     relations <- list();
